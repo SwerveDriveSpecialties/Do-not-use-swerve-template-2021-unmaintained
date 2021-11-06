@@ -1,7 +1,7 @@
 {
   "fileName": "SdsSwerveLib.json",
   "name": "swerve-lib",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0",
   "uuid": "9619F7EA-7F96-4236-9D94-02338DFED592",
   "mavenUrls": [
     "https://jitpack.io"
@@ -11,7 +11,7 @@
     {
       "groupId": "com.github.SwerveDriveSpecialties",
       "artifactId": "swerve-lib",
-      "version": "1.0.0-rc.1"
+      "version": "1.0.0"
     }
   ],
   "jniDependencies": [],

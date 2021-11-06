@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
+import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
 /**
@@ -29,23 +30,16 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    m_drivetrainSubsystem.setDefaultCommand(new FunctionalCommand(
-            () -> { // Do nothing on initialize
-            },
-            () -> m_drivetrainSubsystem.drive(
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                            m_controller.getY(GenericHID.Hand.kLeft),
-                            m_controller.getX(GenericHID.Hand.kLeft),
-                            m_controller.getY(GenericHID.Hand.kRight),
-                            m_drivetrainSubsystem.getGyroscopeRotation()
-                    )
-            ),
-            interrupted -> {
-              // Stop the drivetrain
-              m_drivetrainSubsystem.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
-            },
-            () -> false, // Command never finishes
-            m_drivetrainSubsystem
+    // Set up the default command for the drivetrain.
+    // The controls are for field-oriented driving:
+    // Left stick Y axis -> forward and backwards movement
+    // Left stick X axis -> left and right movement
+    // Right stick X axis -> rotation
+    m_drivetrainSubsystem.setDefaultCommand(new DefaultDriveCommand(
+            m_drivetrainSubsystem,
+            () -> -m_controller.getY(GenericHID.Hand.kLeft) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+            () -> m_controller.getX(GenericHID.Hand.kLeft) * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+            () -> m_controller.getX(GenericHID.Hand.kRight) * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
     ));
 
     // Configure the button bindings
