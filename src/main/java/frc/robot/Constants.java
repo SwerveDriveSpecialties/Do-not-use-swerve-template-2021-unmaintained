@@ -13,7 +13,17 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    /**
+     * The left-to-right distance between the drivetrain wheels
+     *
+     * Should be measured from center to center.
+     */
     public static final double DRIVETRAIN_TRACKWIDTH_METERS = 1.0; // FIXME Measure and set trackwidth
+    /**
+     * The front-to-back distance between the drivetrain wheels.
+     *
+     * Should be measured from center to center.
+     */
     public static final double DRIVETRAIN_WHEELBASE_METERS = 1.0; // FIXME Measure and set wheelbase
 
     public static final int DRIVETRAIN_PIGEON_ID = 0; // FIXME Set Pigeon ID

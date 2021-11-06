@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
@@ -28,15 +29,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public static final double MAX_VOLTAGE = 12.0;
   // FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
   //  The formula for calculating the theoretical maximum velocity is:
-  //   <Motor free speed RPM> / 60 / <Drive reduction> * <Wheel diameter meters> * pi
-  //  For example, a Falcon 500 drive motor on a Mk3 standard module would be:
-  //   6380 / 60 / 8.16 * 0.1016 * pi ~= 4.15 meters per second
+  //   <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> * pi
+  //  By default this value is setup for a Mk3 standard module using Falcon500s to drive.
+  //  An example of this constant for a Mk4 L2 module with NEOs to drive is:
+  //   5880.0 / 60.0 / SdsModuleConfigurations.MK4_L2.getDriveReduction() * SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI
   /**
    * The maximum velocity of the robot in meters per second.
    * <p>
    * This is a measure of how fast the robot should be able to drive in a straight line.
    */
-  public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 / 8.16 * 0.1016 * Math.PI;
+  public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
+          SdsModuleConfigurations.MK3_STANDARD.getDriveReduction() *
+          SdsModuleConfigurations.MK3_STANDARD.getWheelDiameter() * Math.PI;
   /**
    * The maximum angular velocity of the robot in radians per second.
    * <p>
@@ -63,7 +67,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // FIXME Remove if you are using a Pigeon
   private final PigeonIMU m_pigeon = new PigeonIMU(DRIVETRAIN_PIGEON_ID);
   // FIXME Uncomment if you are using a NavX
-//  private final AHRS m_navx = new AHRS(); // NavX connected over MXP
+//  private final AHRS m_navx = new AHRS(SPI.Port.kMXP, (byte) 200); // NavX connected over MXP
 
   // These are our modules. We initialize them in the constructor.
   private final SwerveModule m_frontLeftModule;
@@ -74,7 +78,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
-    // There is 4 methods you can call to create your swerve modules.
+    // There are 4 methods you can call to create your swerve modules.
     // The method you use depends on what motors you are using.
     //
     // Mk3SwerveModuleHelper.createFalcon500(...)
@@ -86,8 +90,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // Mk3SwerveModuleHelper.createFalcon500Neo(...)
     //   Your module has a Falcon 500 and a NEO on it. The Falcon 500 is for driving and the NEO is for steering.
     //
-    // Mk3SwerveModuleHlper.createNeoFalcon500(...)
+    // Mk3SwerveModuleHelper.createNeoFalcon500(...)
     //   Your module has a NEO and a Falcon 500 on it. The NEO is for driving and the Falcon 500 is for steering.
+    //
+    // Similar helpers also exist for Mk4 modules using the Mk4SwerveModuleHelper class.
 
     // By default we will use Falcon 500s in standard configuration. But if you use a different configuration or motors
     // you MUST change it. If you do not, your code will crash on startup.
@@ -166,7 +172,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 //      return Rotation2d.fromDegrees(m_navx.getFusedHeading());
 //    }
 //
-//    return Rotation2d.fromDegrees(m_navx.getYaw());
+//    // We have to invert the angle of the NavX so that rotating the robot counter-clockwise makes the angle increase.
+//    return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {
