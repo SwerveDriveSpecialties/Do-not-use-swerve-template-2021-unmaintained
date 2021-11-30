@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -17,6 +18,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj.SPI;
 
 import static frc.robot.Constants.*;
 
@@ -64,10 +66,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
   // By default we use a Pigeon for our gyroscope. But if you use another gyroscope, like a NavX, you can change this.
   // The important thing about how you configure your gyroscope is that rotating the robot counter-clockwise should
   // cause the angle reading to increase until it wraps back over to zero.
-  // FIXME Remove if you are using a Pigeon
-  private final PigeonIMU m_pigeon = new PigeonIMU(DRIVETRAIN_PIGEON_ID);
-  // FIXME Uncomment if you are using a NavX
-//  private final AHRS m_navx = new AHRS(SPI.Port.kMXP, (byte) 200); // NavX connected over MXP
+  private PigeonIMU m_pigeon = null;
+  private AHRS m_navx = null;
+
+  // Disable Pigeon and use NAVX IMU by setting CANID to -1
+  private final boolean UsePigeonIMU = !(DRIVETRAIN_PIGEON_ID == -1);
 
   // These are our modules. We initialize them in the constructor.
   private final SwerveModule m_frontLeftModule;
@@ -79,6 +82,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public DrivetrainSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+
+    if (UsePigeonIMU) {
+        m_pigeon = new PigeonIMU(DRIVETRAIN_PIGEON_ID);
+    }
+    else {
+        // No Pigeon. Use NavX connected over MXP
+        m_navx = new AHRS(SPI.Port.kMXP, (byte) 200);
+    }
 
     // There are 4 methods you can call to create your swerve modules.
     // The method you use depends on what motors you are using.
@@ -157,25 +168,27 @@ public class DrivetrainSubsystem extends SubsystemBase {
    * 'forwards' direction.
    */
   public void zeroGyroscope() {
-    // FIXME Remove if you are using a Pigeon
-    m_pigeon.setFusedHeading(0.0);
-
-    // FIXME Uncomment if you are using a NavX
-//    m_navx.zeroYaw();
+    if (UsePigeonIMU) {
+        m_pigeon.setFusedHeading(0.0);
+    }
+    else {
+        m_navx.zeroYaw();
+    }
   }
 
   public Rotation2d getGyroscopeRotation() {
-    // FIXME Remove if you are using a Pigeon
-    return Rotation2d.fromDegrees(m_pigeon.getFusedHeading());
+    if (UsePigeonIMU) {
+        return Rotation2d.fromDegrees(m_pigeon.getFusedHeading());
+    }
+    else {
+        if (m_navx.isMagnetometerCalibrated()) {
+                // We will only get valid fused headings if the magnetometer is calibrated
+                return Rotation2d.fromDegrees(m_navx.getFusedHeading());
+        }
 
-    // FIXME Uncomment if you are using a NavX
-//    if (m_navx.isMagnetometerCalibrated()) {
-//      // We will only get valid fused headings if the magnetometer is calibrated
-//      return Rotation2d.fromDegrees(m_navx.getFusedHeading());
-//    }
-//
-//    // We have to invert the angle of the NavX so that rotating the robot counter-clockwise makes the angle increase.
-//    return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+        // We have to invert the angle of the NavX so that rotating the robot counter-clockwise makes the angle increase.
+        return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+    }
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {

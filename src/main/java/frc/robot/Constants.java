@@ -26,6 +26,9 @@ public final class Constants {
      */
     public static final double DRIVETRAIN_WHEELBASE_METERS = 1.0; // FIXME Measure and set wheelbase
 
+    /*
+     * Set pigeon ID to -1 to disable pigeon over CAN and use NAVX on SPI.Port.kMXP
+     * */
     public static final int DRIVETRAIN_PIGEON_ID = 0; // FIXME Set Pigeon ID
 
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 0; // FIXME Set front left module drive motor ID
