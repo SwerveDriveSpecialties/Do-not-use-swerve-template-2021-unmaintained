@@ -96,6 +96,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     //   Your module has a NEO and a Falcon 500 on it. The NEO is for driving and the Falcon 500 is for steering.
     //
     // Similar helpers also exist for Mk4 modules using the Mk4SwerveModuleHelper class.
+    // This means that you can also use Mk4i modules, by using the Mk4iSwerveModuleHelper class.
 
     // By default we will use Falcon 500s in standard configuration. But if you use a different configuration or motors
     // you MUST change it. If you do not, your code will crash on startup.
